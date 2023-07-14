@@ -6,7 +6,7 @@ TELA_LARGURA = 500
 TELA_ALTURA = 800
 
 IMAGEM_CANO = pygame.transform.scale2x(pygame.image.load(os.path.join('imgs', 'pipe.png')))
-IMAGEM_CHAO =  pygame.transform.scale2x(pygame.image.load(os.path.join('imgs', 'base.png')))
+IMAGEM_CHAO = pygame.transform.scale2x(pygame.image.load(os.path.join('imgs', 'base.png')))
 IMAGEM_BACKGROUND = pygame.transform.scale2x(pygame.image.load(os.path.join('imgs', 'bg.png')))
 IMAGEM_PASSARO = [
     pygame.transform.scale2x(pygame.image.load(os.path.join('imgs', 'bird1.png'))),
@@ -16,8 +16,6 @@ IMAGEM_PASSARO = [
 
 pygame.font.init()
 FONTE_PONTOS = pygame.font.SysFont('arial', 50)
-
-
 
 class Passaro:
     IMGS = IMAGEM_PASSARO
@@ -45,7 +43,7 @@ class Passaro:
         self.tempo += 1
         deslocamento = 1.5 * (self.tempo**2) + self.velocidade * self.tempo
         
-        #restringir o deslocamento
+        # restringir o deslocamento
         if deslocamento > 16:
             deslocamento = 16
         elif deslocamento < 0:
@@ -85,22 +83,22 @@ class Passaro:
         
         # desenhar a imagem do passaro       
         imagem_rotacionada = pygame.transform.rotate(self.imagem, self.angulo)
-        pos_centro_imagem = self.imagem.get_rect(topleft = (self.x, self.y)).center
-        retangulo = imagem_rotacionada.get_rect(center = pos_centro_imagem)
+        pos_centro_imagem = self.imagem.get_rect(topleft=(self.x, self.y)).center
+        retangulo = imagem_rotacionada.get_rect(center=pos_centro_imagem)
         tela.blit(imagem_rotacionada, retangulo.topleft) 
     
     def get_mask(self):
-        return  pygame.mask.from_surface(self.imagem)
-            
+        return pygame.mask.from_surface(self.imagem)
+
 class Cano:
-    DISTANCIA = 200
-    VELOCIDADE = 5
+    DISTANCIA = 300
+    VELOCIDADE = 4
     
     def __init__(self, x):
-        self .x = x
+        self.x = x
         self.altura = 0
         self.pos_topo = 0
-        self.pos_base = 0
+        self.pos_base = 0            
         self.CANO_TOPO = pygame.transform.flip(IMAGEM_CANO, False, True)
         self.CANO_BASE = IMAGEM_CANO
         self.passou = False
@@ -118,7 +116,7 @@ class Cano:
         tela.blit(self.CANO_TOPO, (self.x, self.pos_topo))
         tela.blit(self.CANO_BASE, (self.x, self.pos_base))
     
-    def colidir (self, passaro):
+    def colidir(self, passaro):
         passaro_mask = passaro.get_mask()
         topo_mask = pygame.mask.from_surface(self.CANO_TOPO)
         base_mask = pygame.mask.from_surface(self.CANO_BASE)
@@ -133,7 +131,6 @@ class Cano:
             return True
         else:
             return False
-
 
 class Chao:
     VELOCIDADE = 5
@@ -159,19 +156,29 @@ class Chao:
         tela.blit(self.IMAGEM, (self.x2, self.y))
 
 def desenhar_tela(tela, passaros, canos, chao, pontos): 
-    tela.blit(IMAGEM_BACKGROUND, (0,0))
+    tela.blit(IMAGEM_BACKGROUND, (0, 0))
     for passaro in passaros:
         passaro.Desenhar(tela)
     for cano in canos:
         cano.desenhar(tela)
     
-    texto = FONTE_PONTOS.render(f"Pontuação: (pontos)", 1, (255,255,255))
+    texto = FONTE_PONTOS.render(f"Pontuação: {pontos}", 1, (255, 255, 255))
     tela.blit(texto, (TELA_LARGURA - 10 - texto.get_width(), 10))
     chao.desenhar(tela)
     pygame.display.update()
-    
+
+def reiniciar_jogo():
+    global passaros, chao, canos, pontos
+    passaros.clear()
+    passaros.append(Passaro(230, 350))
+    chao = Chao(730)
+    canos.clear()
+    canos.append(Cano(700))
+    pontos = 0
+
 def main():
-    passaros = [Passaro(230,350)]
+    global passaros, chao, canos, pontos
+    passaros = [Passaro(230, 350)]
     chao = Chao(730)
     canos = [Cano(700)]
     tela = pygame.display.set_mode((TELA_LARGURA, TELA_ALTURA))
@@ -182,22 +189,29 @@ def main():
     while rodando:
         relogio.tick(30)
         
-        # interação com usuário
+        # Interação com o usuário
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 rodando = False
                 pygame.quit()
-                quit()
-            if evento.type == pygame.KEYDOWN:
+            if evento.type == pygame.KEYUP:
                 if evento.key == pygame.K_SPACE:
                     for passaro in passaros:
                         passaro.pular()
-        
-        # mover as coisas
+
+        # Mover as coisas
         for passaro in passaros:
             passaro.mover()
         chao.mover()
-            
+        
+        # Verificar se o pássaro caiu, subiu demais ou colidiu com um cano
+        for passaro in passaros:
+            if passaro.y + passaro.imagem.get_height() >= chao.y or passaro.y < 0:
+                reiniciar_jogo()
+            for cano in canos:
+                if cano.colidir(passaro):
+                    reiniciar_jogo()
+
         adicionar_cano = False
         remover_canos = []
         for cano in canos:
@@ -212,15 +226,11 @@ def main():
                 remover_canos.append(cano)
         
         if adicionar_cano:
-            ponto += 1
+            pontos += 1                 
             canos.append(Cano(600))
         for cano in remover_canos:
             canos.remove(cano)
         
-        for i, passaro in enumerate(passaros):
-            if (passaro.y + passaro.imagem.get_height() >= chao.y or passaro.y < 0):
-                passaros.pop(i)
-            
         desenhar_tela(tela, passaros, canos, chao, pontos)
         
 if __name__ == "__main__":
