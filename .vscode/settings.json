@@ -13,6 +13,7 @@
         "canos",
         "centro",
         "CHAO",
+        "coisas",
         "colidir",
         "contagem",
         "definir",
@@ -25,7 +26,9 @@
         "evento",
         "FONTE",
         "IMAGEM",
+        "interação",
         "KEYDOWN",
+        "KEYUP",
         "LARGURA",
         "PASSARO",
         "passaros",
@@ -47,6 +50,7 @@
         "topo",
         "TOPO",
         "usada",
+        "usuário",
         "velocidade",
         "VELOCIDADE"
     ]
