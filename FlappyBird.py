@@ -9,9 +9,9 @@ IMAGEM_CANO = pygame.transform.scale2x(pygame.image.load(os.path.join('imgs', 'p
 IMAGEM_CHAO =  pygame.transform.scale2x(pygame.image.load(os.path.join('imgs', 'base.png')))
 IMAGEM_BACKGROUND = pygame.transform.scale2x(pygame.image.load(os.path.join('imgs', 'bg.png')))
 IMAGEM_PASSARO = [
-    pygame.transform.scale2x(pygame.image.load(os.path.join('bird1', 'bg.png'))),
-    pygame.transform.scale2x(pygame.image.load(os.path.join('bird2', 'bg.png'))),
-    pygame.transform.scale2x(pygame.image.load(os.path.join('bird3', 'bg.png'))),
+    pygame.transform.scale2x(pygame.image.load(os.path.join('imgs', 'bird1.png'))),
+    pygame.transform.scale2x(pygame.image.load(os.path.join('imgs', 'bird2.png'))),
+    pygame.transform.scale2x(pygame.image.load(os.path.join('imgs', 'bird3.png'))),
 ]
 
 pygame.font.init()
@@ -54,7 +54,7 @@ class Passaro:
         self.y += deslocamento
         
         # o angulo do passaro
-        if deslocamento < 0 or self.y (self.altura + 50):
+        if deslocamento < 0 or self.y > (self.altura + 50):
             if self.angulo < self.ROTACAO_MAXIMA:
                 self.angulo = self.ROTACAO_MAXIMA
         else:
@@ -90,7 +90,7 @@ class Passaro:
         tela.blit(imagem_rotacionada, retangulo.topleft) 
     
     def get_mask(self):
-        pygame.mask.from_surface(self.imagem)
+        return  pygame.mask.from_surface(self.imagem)
             
 class Cano:
     DISTANCIA = 200
@@ -108,7 +108,7 @@ class Cano:
         
     def definir_altura(self):
         self.altura = random.randrange(50, 450)
-        self.pos_base = self.altura + - self.CANO_TOPO.get_height()
+        self.pos_topo = self.altura - self.CANO_TOPO.get_height()
         self.pos_base = self.altura + self.DISTANCIA
         
     def mover(self):
@@ -150,9 +150,9 @@ class Chao:
         self.x2 -= self.VELOCIDADE
         
         if self.x1 + self.LARGURA < 0:
-            self.x1 = self.x1 + self.LARGURA
+            self.x1 = self.x2 + self.LARGURA
         if self.x2 + self.LARGURA < 0:
-            self.x2 = self.x2 + self.LARGURA
+            self.x2 = self.x1 + self.LARGURA
         
     def desenhar(self, tela):
         tela.blit(self.IMAGEM, (self.x1, self.y))
@@ -192,13 +192,12 @@ def main():
                 if evento.key == pygame.K_SPACE:
                     for passaro in passaros:
                         passaro.pular()
-                
         
         # mover as coisas
         for passaro in passaros:
             passaro.mover()
         chao.mover()
-        
+            
         adicionar_cano = False
         remover_canos = []
         for cano in canos:
@@ -223,3 +222,6 @@ def main():
                 passaros.pop(i)
             
         desenhar_tela(tela, passaros, canos, chao, pontos)
+        
+if __name__ == "__main__":
+    main()
