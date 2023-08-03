@@ -21,10 +21,14 @@ O jogo apresenta os seguintes recursos:
 
 Para instalar e executar o jogo, siga as instruções abaixo:
 
+## Instalação e Configuração
+
+Para instalar e executar o jogo, siga as instruções abaixo:
+
 1. Clone este repositório para a sua máquina local.
 
 ```bash
-git clone [https://github.com/seu_usuario/flappy_bird_clone](https://github.com/thiarly/flappybird)
+git clone https://github.com/thiarly/flappybird
 Navegue até a pasta do projeto clonado.
 bash
 Copy code
